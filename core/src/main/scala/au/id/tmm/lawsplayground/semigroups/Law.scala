@@ -1,5 +1,6 @@
 package au.id.tmm.lawsplayground.semigroups
 
+import au.id.tmm.lawsplayground.semigroups
 import cats.data.NonEmptyList
 import cats.kernel.Eq
 import cats.kernel.laws.discipline.catsLawsIsEqToProp
@@ -76,13 +77,19 @@ object Laws {
         a <-> (a |+| zero)
     }
 
+  val idempotence: Law =
+    new semigroups.Law.With1Param("idempotence") {
+      override def test[A: Instance](a: A): IsEq[A] = (a |+| a) <-> a
+    }
+
 }
 
 object Runner {
 
   def main(args: Array[String]): Unit = {
-    val forInt: Instance[Int]       = Instance(binaryOp = _ + _)
-    val forString: Instance[String] = Instance(binaryOp = _ + _)
+    val forInt: Instance[Int]       = Instance(binaryOp = _ + _, identity = 0)
+    val forString: Instance[String] = Instance(binaryOp = _ + _, identity = "")
+    val forSet: Instance[Set[Int]]  = Instance(binaryOp = _ ++ _, identity = Set.empty)
 
     val magma = TypeClass(
       name = "magma",
@@ -102,7 +109,13 @@ object Runner {
       laws = NonEmptyList.of(Laws.additiveIdentity),
     )
 
-    run(List(forInt, forString), List(magma, semigroup, monoid))
+    val band = TypeClass(
+      name = "band",
+      parents = Set(semigroup),
+      laws = NonEmptyList.of(Laws.idempotence),
+    )
+
+    run(List(forInt, forString, forSet), List(magma, semigroup, monoid, band))
   }
 
   def run(
