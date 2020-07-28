@@ -28,7 +28,7 @@ object Laws {
 
   val inverse: Law = new Law.With1Param(name = "inverse") {
     override def test[A: Instance](a: A): IsEq[A] =
-      (a + (-a)) alwaysEquals a
+      ((-a) + a) alwaysEquals zero
   }
 
 }

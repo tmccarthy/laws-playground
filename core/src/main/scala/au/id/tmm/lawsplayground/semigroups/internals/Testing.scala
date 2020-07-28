@@ -76,7 +76,7 @@ object Testing {
         LawTestResult.Fail
       }
       case False | Undecided => {
-        logger.info(s"${instance.name} failed ${law.name}")
+        logger.info(s"${instance.name} failed ${law.name}. $result")
         LawTestResult.Fail
       }
       case True | Proof => LawTestResult.Pass

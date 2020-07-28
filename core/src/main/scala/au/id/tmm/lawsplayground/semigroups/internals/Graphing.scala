@@ -5,9 +5,9 @@ import au.id.tmm.lawsplayground.semigroups.{Instance, LawTestResult, TypeClass}
 private[semigroups] object Graphing {
 
   def dotSnippetFor(instance: Instance[_], typeClasses: Set[TypeClass], resultsPerTypeClass: TypeClass => LawTestResult): String = {
-    dotSnippetFor(
+    makeDotSnippet(
       graphName = instance.name.replaceAll("""\W""", ""),
-      typeClasses,
+      typeClasses.toList.sortBy(_.name),
       colouring = t => resultsPerTypeClass(t) match {
         case LawTestResult.Pass => Some("green") // TODO this is not really accessible
         case LawTestResult.Fail => Some("red") // TODO this is not really accessible
@@ -18,7 +18,7 @@ private[semigroups] object Graphing {
   private def nodeNameFor(typeClass: TypeClass): String =
     typeClass.name.replaceAll("\\W", "")
 
-  private def dotSnippetFor(graphName: String, typeClasses: Set[TypeClass], colouring: TypeClass => Option[String]): String = {
+  private def makeDotSnippet(graphName: String, typeClasses: List[TypeClass], colouring: TypeClass => Option[String]): String = {
     val nodesSnippet =
       typeClasses
         .map { t =>

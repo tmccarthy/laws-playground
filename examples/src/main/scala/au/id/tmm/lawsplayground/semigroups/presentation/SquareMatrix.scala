@@ -36,7 +36,7 @@ final case class SquareMatrix(
   override def toString: String =
     """⎡ %3d, %3d, %3d ⎤
       |⎢ %3d, %3d, %3d ⎥
-      |⎣ %3d, %3d, %3d ⎦""".stripMargin
+      |⎣ %3d, %3d, %3d ⎦""".format(a11, a12, a13, a21, a22, a23, a31, a32, a33).stripMargin
 
 }
 
