@@ -18,7 +18,7 @@ object Graphing {
       typeClasses
         .map { t =>
           colouring(t) match {
-            case Some(colour) => s"${t.name} [color=$colour]"
+            case Some(colour) => s"${t.name} [color=$colour, style=filled]"
             case None         => t.name
           }
         }
