@@ -12,6 +12,8 @@ object Presentation extends LawsPlayground {
         binaryOp = (i1: Int, i2: Int) => i1 + i2,
         identity = 0,
         inverse = (i: Int) => -i,
+        multiplicativeOp = (i1: Int, i2: Int) => i1 * i2,
+        multiplicativeIdentity = 1,
       ),
       Instance[Int](
         name = "Int under maximum",
@@ -37,6 +39,8 @@ object Presentation extends LawsPlayground {
         binaryOp = (m1: SquareMatrix, m2: SquareMatrix) => m1 + m2,
         identity = SquareMatrix.zero,
         inverse = (m: SquareMatrix) => m * -1,
+        multiplicativeOp = (m1: SquareMatrix, m2: SquareMatrix) => m1 * m2,
+        multiplicativeIdentity = SquareMatrix.I,
       ),
     )
 
@@ -65,12 +69,13 @@ object Presentation extends LawsPlayground {
       ),
     )
 
+    // TODO somehow int is passing this under addition
     val semilattice = TypeClass(
       name = "Semilattice",
       parents = Set(band),
       laws = Set(
         Laws.commutativity,
-      )
+      ),
     )
 
     val commutativeMonoid = TypeClass(
@@ -78,7 +83,7 @@ object Presentation extends LawsPlayground {
       parents = Set(monoid),
       laws = Set(
         Laws.commutativity,
-      )
+      ),
     )
 
     val boundedSemilattice = TypeClass(
@@ -92,7 +97,7 @@ object Presentation extends LawsPlayground {
       parents = Set(monoid),
       laws = Set(
         Laws.inverse,
-      )
+      ),
     )
 
     val commutativeGroup = TypeClass(
@@ -101,6 +106,35 @@ object Presentation extends LawsPlayground {
       laws = Set.empty,
     )
 
-    List(semigroup, monoid, band, semilattice, commutativeMonoid, boundedSemilattice, group, commutativeGroup)
+    val ring = TypeClass(
+      name = "Ring",
+      parents = Set(commutativeGroup),
+      laws = Set(
+        Laws.associativeMultiplication,
+        Laws.multiplicativeIdentity,
+        Laws.distributive,
+      ),
+    )
+
+    val field = TypeClass(
+      name = "Field",
+      parents = Set(ring),
+      laws = Set(
+        Laws.multiplicativeInverse,
+      ),
+    )
+
+    List(
+      semigroup,
+      monoid,
+      band,
+      semilattice,
+      commutativeMonoid,
+      boundedSemilattice,
+      group,
+      commutativeGroup,
+      ring,
+      field,
+    )
   }
 }

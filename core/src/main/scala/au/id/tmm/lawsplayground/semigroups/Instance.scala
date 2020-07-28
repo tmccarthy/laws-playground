@@ -3,6 +3,7 @@ package au.id.tmm.lawsplayground.semigroups
 import au.id.tmm.lawsplayground.semigroups.Instance.Syntax.Operation._
 import au.id.tmm.utilities.errors.ProductException
 import cats.kernel.Eq
+import cats.kernel.laws.IsEq
 import org.scalacheck.Arbitrary
 
 import scala.reflect.ClassTag
@@ -265,6 +266,9 @@ object Instance {
 
   // TODO replace the .get with something more sophisticated
   final class Ops[A] private[Instance] (left: A)(implicit instance: Instance[A]) {
+    def ===(right: A): Boolean =
+      instance.eqA.eqv(left, right)
+
     def +(right: A): A =
       instance.binaryOp
         .getOrElse(throw Syntax.OperationNotImplementedException(Addition))
@@ -294,12 +298,30 @@ object Instance {
     def zero[A](implicit instance: Instance[A]): A =
       instance.identity
         .getOrElse(throw Syntax.OperationNotImplementedException(AdditiveIdentity))
+    def additiveIdentity[A](implicit instance: Instance[A]): A =
+      zero
     def `0`[A](implicit instance: Instance[A]): A = zero
 
     def one[A](implicit instance: Instance[A]): A =
       instance.multiplicativeIdentity
         .getOrElse(throw Syntax.OperationNotImplementedException(MultiplicativeInverse))
+    def multiplicativeIdentity[A](implicit instance: Instance[A]): A =
+      one
     def `1`[A](implicit instance: Instance[A]): A = one
+
+    def pass[A](implicit instance: Instance[A]): IsEq[A] = {
+      val a = instance.arbA.arbitrary.sample.get
+
+      IsEq(a, a)
+    }
+
+    // Massive hack
+    def fail[A](implicit instance: Instance[A]): IsEq[A] = {
+      val arbitrary = instance.arbA.arbitrary
+      val a1 = arbitrary.sample.get
+      val a2 = arbitrary.filter(a => instance.eqA.neqv(a, a1)).sample.get
+      IsEq(a1, a2)
+    }
   }
 
   object Syntax {

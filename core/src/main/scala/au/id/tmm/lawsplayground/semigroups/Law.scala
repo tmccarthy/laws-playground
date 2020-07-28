@@ -6,9 +6,8 @@ sealed abstract class Law {
   def name: String
 }
 
+// TODO a law that is composed of other laws, so we can test commutative identity?
 object Law {
-
-  type Params3[A] = Tuple3[A, A, A]
 
   abstract class With1Param(val name: String) extends Law {
     def test[A : Instance](a: A): IsEq[A]

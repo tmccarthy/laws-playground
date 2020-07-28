@@ -31,4 +31,27 @@ object Laws {
       ((-a) + a) alwaysEquals zero
   }
 
+  val associativeMultiplication: Law = new Law.With3Params(name = "associative multiplication") {
+    override def test[A: Instance](a1: A, a2: A, a3: A): IsEq[A] =
+      ((a1 * a2) * a3) alwaysEquals (a1 * (a2 * a3))
+  }
+
+  val multiplicativeIdentity: Law = new Law.With1Param(name = "multiplicative identity") {
+    override def test[A: Instance](a: A): IsEq[A] =
+      (a * one) alwaysEquals a
+  }
+
+  val distributive: Law = new Law.With3Params(name = "distributive") {
+    override def test[A: Instance](a1: A, a2: A, a3: A): IsEq[A] =
+      (a1 * (a2 + a3)) alwaysEquals ((a1 * a2) + (a1 * a3))
+  }
+
+  val multiplicativeInverse: Law = new Law.With1Param(name = "multiplicative inverse") {
+    override def test[A: Instance](a: A): IsEq[A] =
+      a.`⁻¹` match {
+        case Some(inverse) => if (a === zero) fail else (a * inverse) alwaysEquals one
+        case None => if (a === zero) pass else fail
+      }
+  }
+
 }
