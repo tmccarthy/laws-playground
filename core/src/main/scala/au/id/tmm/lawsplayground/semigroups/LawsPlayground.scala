@@ -3,9 +3,15 @@ package au.id.tmm.lawsplayground.semigroups
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
 
+import au.id.tmm.utilities.syntax.tuples.->
 import cats.kernel.Eq
 import cats.kernel.laws.discipline.catsLawsIsEqToProp
+import org.apache.commons.io.IOUtils
+import org.apache.commons.text.StringSubstitutor
 import org.scalacheck.{Arbitrary, Gen, Prop}
+import io.circe.syntax.EncoderOps
+
+import scala.jdk.CollectionConverters._
 
 abstract class LawsPlayground {
 
@@ -17,7 +23,7 @@ abstract class LawsPlayground {
       case (instances, typeClasses) => (instances, typeClasses.toSet)
     }
 
-    val dotSnippetPerInstance: List[(Instance[_], String)] =
+    val dotSnippetPerInstanceName: List[String -> String] =
       instances.map { instance =>
         val resultPerTypeClass: Map[TypeClass, LawTestResult] = typeClasses.map { typeClass =>
           val resultForTypeclass: LawTestResult =
@@ -25,61 +31,20 @@ abstract class LawsPlayground {
               .map { law =>
                 doTestsUnsafe(law, instance)
               }
-              .reduce
+              .foldLeft[LawTestResult](LawTestResult.Pass)(_ && _)
 
           typeClass -> resultForTypeclass
         }.toMap
 
         val dotSnippet = Graphing.dotSnippetFor(instance, typeClasses, resultPerTypeClass)
 
-        instance -> dotSnippet
+        instance.name -> dotSnippet
       }
 
-    val dotsArray = dotSnippetPerInstance.map(_._2).map(_.replace("\n", "\\n").replace("\"", "\\\"")).mkString("[\"", "\", \n\"", "\"]")
-    val title = "Laws graph"
-
-    val html =
-      s"""<!DOCTYPE html>
-         |<html lang="en">
-         |<head>
-         |    <meta charset="utf-8">
-         |    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
-         |    <meta content="utf-8" http-equiv="encoding">
-         |    <title>$title</title>
-         |    <script src="https://d3js.org/d3.v5.min.js"></script>
-         |    <script src="https://unpkg.com/@hpcc-js/wasm@0.3.11/dist/index.min.js"></script>
-         |    <script src="https://unpkg.com/d3-graphviz@3.0.5/build/d3-graphviz.js"></script>
-         |</head>
-         |<body>
-         |<div id="graph" style="text-align: center;"></div>
-         |<script type="text/javascript">
-         |    var dotIndex = 0;
-         |    var graphviz = d3.select("#graph").graphviz()
-         |        .transition(function () {
-         |            return d3.transition("main")
-         |                .ease(d3.easeLinear)
-         |                .delay(500)
-         |                .duration(1500);
-         |        })
-         |        .logEvents(true)
-         |        .on("initEnd", render);
-         |
-         |
-         |    function render() {
-         |        var dot = dots[dotIndex];
-         |        graphviz
-         |            .renderDot(dot)
-         |            .on("end", function () {
-         |                dotIndex = (dotIndex + 1) % dots.length;
-         |                render();
-         |            });
-         |    }
-         |
-         |    var dots = $dotsArray;
-         |</script>
-         |</body>
-         |</html>
-         |""".stripMargin
+    val html = generateHtml(
+      title = "Laws graph",
+      dotSnippetPerInstanceName,
+    )
 
     val htmlFile: Path = Files.createTempFile("laws_graph", ".html")
 
@@ -109,6 +74,21 @@ abstract class LawsPlayground {
     val result = prop.apply(Gen.Parameters.default)
 
     if (result.success) LawTestResult.Pass else LawTestResult.Fail
+  }
+
+  private def generateHtml(
+    title: String,
+    dotSnippetPerInstanceName: List[String -> String],
+  ): String = {
+    val template = IOUtils.toString(getClass.getResourceAsStream("typeclass-graph.html"), StandardCharsets.UTF_8)
+
+    val templateValues: Map[String, String] = Map(
+      "title" -> title,
+      "instanceNames" -> dotSnippetPerInstanceName.map(_._1).asJson.noSpaces,
+      "dotsPerInstance" -> dotSnippetPerInstanceName.toMap.asJson.noSpaces,
+    )
+
+    new StringSubstitutor(templateValues.asJava).replace(template)
   }
 
 }

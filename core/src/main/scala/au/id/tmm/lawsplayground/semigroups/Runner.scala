@@ -1,7 +1,5 @@
 package au.id.tmm.lawsplayground.semigroups
 
-import cats.data.NonEmptyList
-
 // TODO rename or remove
 object Runner extends LawsPlayground {
 
@@ -14,25 +12,25 @@ object Runner extends LawsPlayground {
     val magma = TypeClass(
       name = "magma",
       parents = Set.empty,
-      laws = NonEmptyList.of(Laws.consistency),
+      laws = Set.empty,
     )
 
     val semigroup = TypeClass(
       name = "semigroup",
       parents = Set(magma),
-      laws = NonEmptyList.of(Laws.associativity),
+      laws = Set(Laws.associativity),
     )
 
     val monoid = TypeClass(
       name = "monoid",
       parents = Set(semigroup),
-      laws = NonEmptyList.of(Laws.additiveIdentity),
+      laws = Set(Laws.additiveIdentity),
     )
 
     val band = TypeClass(
       name = "band",
       parents = Set(semigroup),
-      laws = NonEmptyList.of(Laws.idempotence),
+      laws = Set(Laws.idempotence),
     )
 
     (List(forInt, forIntMax, forString, forSet), List(magma, semigroup, monoid, band))
