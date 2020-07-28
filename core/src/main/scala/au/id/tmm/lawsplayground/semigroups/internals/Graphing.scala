@@ -1,6 +1,8 @@
-package au.id.tmm.lawsplayground.semigroups
+package au.id.tmm.lawsplayground.semigroups.internals
 
-object Graphing {
+import au.id.tmm.lawsplayground.semigroups.{Instance, LawTestResult, TypeClass}
+
+private[semigroups] object Graphing {
 
   def dotSnippetFor(instance: Instance[_], typeClasses: Set[TypeClass], resultsPerTypeClass: TypeClass => LawTestResult): String = {
     dotSnippetFor(
