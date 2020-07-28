@@ -137,6 +137,130 @@ object Instance {
       Some(multiplicativeInverse),
     )
 
+  def apply[A : Arbitrary : Eq](name: String): Instance[A] =
+    new Instance[A](
+      name,
+      implicitly[Arbitrary[A]],
+      Eq[A],
+      binaryOp = None,
+      identity = None,
+      inverse = None,
+      multiplicativeOp = None,
+      multiplicativeIdentity = None,
+      multiplicativeInverse = None,
+    )
+
+  def apply[A : Arbitrary : Eq](
+    name: String,
+    binaryOp: (A, A) => A,
+  ): Instance[A] =
+    new Instance[A](
+      name,
+      implicitly[Arbitrary[A]],
+      Eq[A],
+      Some(binaryOp),
+      identity = None,
+      inverse = None,
+      multiplicativeOp = None,
+      multiplicativeIdentity = None,
+      multiplicativeInverse = None,
+    )
+
+  def apply[A : Arbitrary : Eq](
+    name: String,
+    binaryOp: (A, A) => A,
+    identity: A,
+  ): Instance[A] =
+    new Instance[A](
+      name,
+      implicitly[Arbitrary[A]],
+      Eq[A],
+      Some(binaryOp),
+      Some(identity),
+      inverse = None,
+      multiplicativeOp = None,
+      multiplicativeIdentity = None,
+      multiplicativeInverse = None,
+    )
+
+  def apply[A : Arbitrary : Eq](
+    name: String,
+    binaryOp: (A, A) => A,
+    identity: A,
+    inverse: A => A,
+  ): Instance[A] =
+    new Instance[A](
+      name,
+      implicitly[Arbitrary[A]],
+      Eq[A],
+      Some(binaryOp),
+      Some(identity),
+      Some(inverse),
+      multiplicativeOp = None,
+      multiplicativeIdentity = None,
+      multiplicativeInverse = None,
+    )
+
+  def apply[A : Arbitrary : Eq](
+    name: String,
+    binaryOp: (A, A) => A,
+    identity: A,
+    inverse: A => A,
+    multiplicativeOp: (A, A) => A,
+  ): Instance[A] =
+    new Instance[A](
+      name,
+      implicitly[Arbitrary[A]],
+      Eq[A],
+      Some(binaryOp),
+      Some(identity),
+      Some(inverse),
+      Some(multiplicativeOp),
+      multiplicativeIdentity = None,
+      multiplicativeInverse = None,
+    )
+
+  def apply[A : Arbitrary : Eq](
+    name: String,
+    binaryOp: (A, A) => A,
+    identity: A,
+    inverse: A => A,
+    multiplicativeOp: (A, A) => A,
+    multiplicativeIdentity: A,
+  ): Instance[A] =
+    new Instance[A](
+      name,
+      implicitly[Arbitrary[A]],
+      Eq[A],
+      Some(binaryOp),
+      Some(identity),
+      Some(inverse),
+      Some(multiplicativeOp),
+      Some(multiplicativeIdentity),
+      multiplicativeInverse = None,
+    )
+
+  def apply[A : Arbitrary : Eq](
+    name: String,
+    binaryOp: (A, A) => A,
+    identity: A,
+    inverse: A => A,
+    multiplicativeOp: (A, A) => A,
+    multiplicativeIdentity: A,
+    multiplicativeInverse: A => Option[A],
+  ): Instance[A] =
+    new Instance[A](
+      name,
+      implicitly[Arbitrary[A]],
+      Eq[A],
+      Some(binaryOp),
+      Some(identity),
+      Some(inverse),
+      Some(multiplicativeOp),
+      Some(multiplicativeIdentity),
+      Some(multiplicativeInverse),
+    )
+
   // TODO replace the .get with something more sophisticated
   final class Ops[A] private[Instance] (left: A)(implicit instance: Instance[A]) {
     def |+|(right: A): A = instance.binaryOp.get.apply(left, right)
