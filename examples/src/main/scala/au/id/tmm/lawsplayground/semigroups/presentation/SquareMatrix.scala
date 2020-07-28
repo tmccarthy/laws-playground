@@ -26,6 +26,13 @@ final case class SquareMatrix(
       // format: on
     )
 
+  def * (k: Int): SquareMatrix =
+    SquareMatrix(
+      this.a11 * k, this.a12 * k, this.a13 * k,
+      this.a21 * k, this.a22 * k, this.a23 * k,
+      this.a31 * k, this.a32 * k, this.a33 * k,
+    )
+
   override def toString: String =
     """⎡ %3d, %3d, %3d ⎤
       |⎢ %3d, %3d, %3d ⎥

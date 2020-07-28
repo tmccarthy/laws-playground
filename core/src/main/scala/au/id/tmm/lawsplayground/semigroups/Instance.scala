@@ -1,5 +1,7 @@
 package au.id.tmm.lawsplayground.semigroups
 
+import au.id.tmm.lawsplayground.semigroups.Instance.Syntax.Operation._
+import au.id.tmm.utilities.errors.ProductException
 import cats.kernel.Eq
 import org.scalacheck.Arbitrary
 
@@ -263,27 +265,58 @@ object Instance {
 
   // TODO replace the .get with something more sophisticated
   final class Ops[A] private[Instance] (left: A)(implicit instance: Instance[A]) {
-    def |+|(right: A): A = instance.binaryOp.get.apply(left, right)
+    def +(right: A): A =
+      instance.binaryOp
+        .getOrElse(throw Syntax.OperationNotImplementedException(Addition))
+        .apply(left, right)
 
-    def |*|(right: A): A = instance.multiplicativeOp.get.apply(left, right)
+    def *(right: A): A =
+      instance.multiplicativeOp
+        .getOrElse(throw Syntax.OperationNotImplementedException(Multiplication))
+        .apply(left, right)
 
-    def inverse: A  = instance.inverse.get.apply(left)
+    def inverse: A =
+      instance.inverse.getOrElse(throw Syntax.OperationNotImplementedException(AdditiveInverse)).apply(left)
     def unary_- : A = inverse
 
-    def multiplicativeInverse: Option[A] = instance.multiplicativeInverse.get.apply(left)
-    def `^-1`: Option[A]                 = multiplicativeInverse
-    def `⁻¹` : Option[A]                 = multiplicativeInverse
+    def multiplicativeInverse: Option[A] =
+      instance.multiplicativeInverse
+        .getOrElse(throw Syntax.OperationNotImplementedException(MultiplicativeInverse))
+        .apply(left)
+    def `^-1`: Option[A] = multiplicativeInverse
+    def `⁻¹` : Option[A] = multiplicativeInverse
   }
 
   trait Syntax {
     implicit def toInstanceOps[A](a: A)(implicit instance: Instance[A]): Instance.Ops[A] =
       new Instance.Ops[A](a)
 
-    def zero[A](implicit instance: Instance[A]): A = instance.identity.get
-    def `|0|`[A](implicit instance: Instance[A]): A = zero
+    def zero[A](implicit instance: Instance[A]): A =
+      instance.identity
+        .getOrElse(throw Syntax.OperationNotImplementedException(AdditiveIdentity))
+    def `0`[A](implicit instance: Instance[A]): A = zero
 
-    def one[A](implicit instance: Instance[A]): A = instance.multiplicativeIdentity.get
-    def `|1|`[A](implicit instance: Instance[A]): A = one
+    def one[A](implicit instance: Instance[A]): A =
+      instance.multiplicativeIdentity
+        .getOrElse(throw Syntax.OperationNotImplementedException(MultiplicativeInverse))
+    def `1`[A](implicit instance: Instance[A]): A = one
+  }
+
+  object Syntax {
+
+    final case class OperationNotImplementedException(operation: Operation) extends ProductException
+
+    sealed abstract class Operation(val asString: String)
+
+    object Operation {
+      case object Addition               extends Operation("addition")
+      case object AdditiveIdentity       extends Operation("additive identity")
+      case object AdditiveInverse        extends Operation("additive inverse")
+      case object Multiplication         extends Operation("multiplication")
+      case object MultiplicativeIdentity extends Operation("multiplicative identity")
+      case object MultiplicativeInverse  extends Operation("multiplicative inverse")
+    }
+
   }
 
 }

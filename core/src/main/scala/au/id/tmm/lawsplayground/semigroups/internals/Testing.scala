@@ -5,21 +5,26 @@ import au.id.tmm.utilities.syntax.tuples.->
 import cats.kernel.Eq
 import cats.kernel.laws.discipline.catsLawsIsEqToProp
 import org.scalacheck.{Arbitrary, Gen, Prop}
+import org.slf4j.{Logger, LoggerFactory}
 
 // TODO logging
 object Testing {
+
+  private val logger: Logger = LoggerFactory.getLogger(getClass)
 
   final case class Result(
     typeClasses: Set[TypeClass],
     resultsPerTypeClassPerInstance: List[Instance[_] -> Map[TypeClass, LawTestResult]],
   )
 
+
+
   private[semigroups] def testAllLaws(instances: List[Instance[_]], typeClasses: Set[TypeClass]): Result = {
 
     val resultsPerTypeClassPerInstance = instances.map { instance =>
       val resultPerTypeClass: Map[TypeClass, LawTestResult] = typeClasses.map { typeClass =>
         val resultForTypeclass: LawTestResult =
-          typeClass.laws
+          allLawsFor(typeClass)
             .map { law =>
               doTestsUnsafe(law, instance)
             }
@@ -35,6 +40,10 @@ object Testing {
       typeClasses,
       resultsPerTypeClassPerInstance,
     )
+  }
+
+  private def allLawsFor(typeClass: TypeClass): Set[Law] = {
+    typeClass.laws ++ typeClass.parents.flatMap(allLawsFor)
   }
 
   private def doTestsUnsafe(law: Law, instance: Instance[_]): LawTestResult =
@@ -57,7 +66,21 @@ object Testing {
 
     val result = prop.apply(Gen.Parameters.default)
 
-    if (result.success) LawTestResult.Pass else LawTestResult.Fail
+    result.status match {
+      case Prop.Exception(Instance.Syntax.OperationNotImplementedException(unimplementedOperation)) => {
+        logger.info(s"${instance.name} failed ${law.name} because ${unimplementedOperation.asString} was unimplemented")
+        LawTestResult.Fail
+      }
+      case Prop.Exception(t) => {
+        logger.error(s"${instance.name} failed ${law.name} with $t")
+        LawTestResult.Fail
+      }
+      case False | Undecided => {
+        logger.info(s"${instance.name} failed ${law.name}")
+        LawTestResult.Fail
+      }
+      case True | Proof => LawTestResult.Pass
+    }
   }
 
 }

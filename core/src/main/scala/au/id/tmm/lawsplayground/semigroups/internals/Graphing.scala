@@ -15,12 +15,15 @@ private[semigroups] object Graphing {
     )
   }
 
+  private def nodeNameFor(typeClass: TypeClass): String =
+    typeClass.name.replaceAll("\\W", "")
+
   private def dotSnippetFor(graphName: String, typeClasses: Set[TypeClass], colouring: TypeClass => Option[String]): String = {
     val nodesSnippet =
       typeClasses
         .map { t =>
           colouring(t) match {
-            case Some(colour) => s"${t.name} [color=$colour, style=filled]"
+            case Some(colour) => s"""${nodeNameFor(t)} [color=$colour, style=filled, label="${t.name}"]"""
             case None         => t.name
           }
         }
@@ -38,7 +41,7 @@ private[semigroups] object Graphing {
           case (parent, child) => {
             val lawNamesForEdge = child.laws.map(_.name).toList.mkString("\n")
 
-            s"""${parent.name} -> ${child.name} [ label = "$lawNamesForEdge" ]"""
+            s"""${nodeNameFor(parent)} -> ${nodeNameFor(child)} [ label = "$lawNamesForEdge" ]"""
           }
         }
         .mkString("\n")

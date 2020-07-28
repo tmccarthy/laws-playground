@@ -11,7 +11,7 @@ object Law {
   type Params3[A] = Tuple3[A, A, A]
 
   abstract class With1Param(val name: String) extends Law {
-    def test[A : Instance](a1: A): IsEq[A]
+    def test[A : Instance](a: A): IsEq[A]
   }
 
   abstract class With2Params(val name: String) extends Law {

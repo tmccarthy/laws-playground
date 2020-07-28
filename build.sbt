@@ -23,6 +23,7 @@ lazy val core = project
   .settings(settingsHelper.settingsForSubprojectCalled("core"))
   .settings(
     libraryDependencies += "au.id.tmm.tmm-utils"             %% "tmm-utils-syntax"                 % tmmUtilsVersion,
+    libraryDependencies += "au.id.tmm.tmm-utils"             %% "tmm-utils-errors"                 % tmmUtilsVersion,
     libraryDependencies += "org.apache.commons"               % "commons-text"                     % "1.9",
     libraryDependencies += "commons-io"                       % "commons-io"                       % "2.7",
     libraryDependencies += "org.typelevel"                   %% "cats-kernel-laws"                 % catsVersion,
