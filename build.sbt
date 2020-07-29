@@ -31,6 +31,7 @@ lazy val core = project
     libraryDependencies += "org.typelevel"                   %% "cats-kernel-laws"                 % catsVersion,
     libraryDependencies += "io.circe"                        %% "circe-core"                       % circeVersion,
     libraryDependencies += "org.slf4j"                        % "slf4j-api"                        % slf4jVersion,
+    libraryDependencies += "org.scala-lang.modules"          %% "scala-parallel-collections"       % "0.2.0",
     libraryDependencies += "au.id.tmm.tmm-scala-collections" %% "tmm-scala-collections-scalacheck" % tmmCollectionsVersion % Test,
   )
 

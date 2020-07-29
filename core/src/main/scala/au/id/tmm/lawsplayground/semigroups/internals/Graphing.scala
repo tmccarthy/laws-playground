@@ -4,27 +4,35 @@ import au.id.tmm.lawsplayground.semigroups.{Instance, LawTestResult, TypeClass}
 
 private[semigroups] object Graphing {
 
-  def dotSnippetFor(instance: Instance[_], typeClasses: Set[TypeClass], resultsPerTypeClass: TypeClass => LawTestResult): String = {
+  def dotSnippetFor(
+    instance: Instance[_],
+    typeClasses: Set[TypeClass],
+    resultsPerTypeClass: TypeClass => LawTestResult,
+  ): String =
     makeDotSnippet(
       graphName = instance.name.replaceAll("""\W""", ""),
       typeClasses.toList.sortBy(_.name),
-      colouring = t => resultsPerTypeClass(t) match {
-        case LawTestResult.Pass => Some("green") // TODO this is not really accessible
-        case LawTestResult.Fail => Some("red") // TODO this is not really accessible
-      }
+      passOrFail = t =>
+        resultsPerTypeClass(t) match {
+          case LawTestResult.Pass => true
+          case LawTestResult.Fail => false
+        },
     )
-  }
 
   private def nodeNameFor(typeClass: TypeClass): String =
     typeClass.name.replaceAll("\\W", "")
 
-  private def makeDotSnippet(graphName: String, typeClasses: List[TypeClass], colouring: TypeClass => Option[String]): String = {
+  private def makeDotSnippet(
+    graphName: String,
+    typeClasses: List[TypeClass],
+    passOrFail: TypeClass => Boolean,
+  ): String = {
     val nodesSnippet =
       typeClasses
         .map { t =>
-          colouring(t) match {
-            case Some(colour) => s"""${nodeNameFor(t)} [color=$colour, style=filled, label="${t.name}"]"""
-            case None         => t.name
+          passOrFail(t) match {
+            case true  => s"""${nodeNameFor(t)} [color="#00800040", style=filled, label="✅ ${t.name}"]"""
+            case false => s"""${nodeNameFor(t)} [color="#ff000040", style=filled, label="❌ ${t.name}"]"""
           }
         }
         .mkString("\n")

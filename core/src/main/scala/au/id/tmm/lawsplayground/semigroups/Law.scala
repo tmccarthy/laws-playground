@@ -6,7 +6,6 @@ sealed abstract class Law {
   def name: String
 }
 
-// TODO a law that is composed of other laws, so we can test commutative identity?
 object Law {
 
   abstract class With1Param(val name: String) extends Law {

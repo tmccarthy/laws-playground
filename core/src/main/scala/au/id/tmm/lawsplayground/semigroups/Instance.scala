@@ -264,7 +264,6 @@ object Instance {
       Some(multiplicativeInverse),
     )
 
-  // TODO replace the .get with something more sophisticated
   final class Ops[A] private[Instance] (left: A)(implicit instance: Instance[A]) {
     def ===(right: A): Boolean =
       instance.eqA.eqv(left, right)

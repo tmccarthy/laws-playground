@@ -1,5 +1,6 @@
 package au.id.tmm.lawsplayground.semigroups.internals
 
+import au.id.tmm.lawsplayground.semigroups.internals.Testing._
 import au.id.tmm.lawsplayground.semigroups.{Instance, Law, LawTestResult, TypeClass}
 import au.id.tmm.utilities.syntax.tuples.->
 import cats.kernel.Eq
@@ -7,31 +8,32 @@ import cats.kernel.laws.discipline.catsLawsIsEqToProp
 import org.scalacheck.{Arbitrary, Gen, Prop}
 import org.slf4j.{Logger, LoggerFactory}
 
-// TODO logging
-object Testing {
+import scala.collection.parallel.immutable.ParSet
+import scala.concurrent.ExecutionContext
 
-  private val logger: Logger = LoggerFactory.getLogger(getClass)
+class Testing private (implicit ec: ExecutionContext) {
 
-  final case class Result(
-    typeClasses: Set[TypeClass],
-    resultsPerTypeClassPerInstance: List[Instance[_] -> Map[TypeClass, LawTestResult]],
-  )
-
-
+  private val runSize = 500
 
   private[semigroups] def testAllLaws(instances: List[Instance[_]], typeClasses: Set[TypeClass]): Result = {
 
     val resultsPerTypeClassPerInstance = instances.map { instance =>
-      val resultPerTypeClass: Map[TypeClass, LawTestResult] = typeClasses.map { typeClass =>
+
+      val lawTestResultFlyweight: scala.collection.concurrent.Map[Law, LawTestResult] =
+        scala.collection.concurrent.TrieMap()
+
+      val resultPerTypeClass: Map[TypeClass, LawTestResult] = ParSet.fromSpecific(typeClasses).map { typeClass =>
         val resultForTypeclass: LawTestResult =
           allLawsFor(typeClass)
             .map { law =>
-              doTestsUnsafe(law, instance)
+              lawTestResultFlyweight.getOrElseUpdate(law, doTestsUnsafe(law, instance))
             }
             .foldLeft[LawTestResult](LawTestResult.Pass)(_ && _)
 
         typeClass -> resultForTypeclass
-      }.toMap
+      }
+        .toMap
+        .seq
 
       instance -> resultPerTypeClass
     }
@@ -42,9 +44,8 @@ object Testing {
     )
   }
 
-  private def allLawsFor(typeClass: TypeClass): Set[Law] = {
+  private def allLawsFor(typeClass: TypeClass): Set[Law] =
     typeClass.laws ++ typeClass.parents.flatMap(allLawsFor)
-  }
 
   private def doTestsUnsafe(law: Law, instance: Instance[_]): LawTestResult =
     doTests[Nothing](law, instance.asInstanceOf[Instance[Nothing]])
@@ -64,7 +65,7 @@ object Testing {
       case lawWith5Params: Law.With5Params => forAll(lawWith5Params.test[A] _)
     }
 
-    val result = prop.apply(Gen.Parameters.default)
+    val result = prop.apply(Gen.Parameters.default.withSize(runSize))
 
     result.status match {
       case Prop.Exception(Instance.Syntax.OperationNotImplementedException(unimplementedOperation)) => {
@@ -83,4 +84,15 @@ object Testing {
     }
   }
 
+}
+
+object Testing {
+  def apply()(implicit ec: ExecutionContext): Testing = new Testing
+
+  final case class Result(
+    typeClasses: Set[TypeClass],
+    resultsPerTypeClassPerInstance: List[Instance[_] -> Map[TypeClass, LawTestResult]],
+  )
+
+  private val logger: Logger = LoggerFactory.getLogger(getClass)
 }

@@ -69,7 +69,6 @@ object Presentation extends LawsPlayground {
       ),
     )
 
-    // TODO somehow int is passing this under addition
     val semilattice = TypeClass(
       name = "Semilattice",
       parents = Set(band),
