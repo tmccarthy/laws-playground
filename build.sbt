@@ -10,6 +10,7 @@ lazy val root = project
   .settings(console := (console in Compile in core).value)
   .aggregate(
     core,
+    examples,
   )
 
 val catsVersion             = "2.2.0-RC2"

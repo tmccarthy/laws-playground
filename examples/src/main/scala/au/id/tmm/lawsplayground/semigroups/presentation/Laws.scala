@@ -6,6 +6,11 @@ import cats.kernel.laws.IsEq
 
 object Laws {
 
+  val binaryOperation: Law = new Law.With2Params(name = "binary operation") {
+    override def test[A: Instance](a1: A, a2: A): IsEq[A] =
+      (a1 + a2) alwaysEquals (a1 + a2)
+  }
+
   val associativity: Law = new Law.With3Params(name = "associativity") {
     override def test[A: Instance](a1: A, a2: A, a3: A): IsEq[A] =
       ((a1 + a2) + a3) alwaysEquals (a1 + (a2 + a3))

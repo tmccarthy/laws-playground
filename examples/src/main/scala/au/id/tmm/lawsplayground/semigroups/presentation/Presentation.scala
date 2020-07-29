@@ -54,6 +54,10 @@ object Presentation extends LawsPlayground {
         binaryOp = (s1: String, s2: String) => s1 + s2,
         identity = "",
       ),
+      Instance[String](
+        name = "String under interleave",
+        binaryOp = (s1: String, s2: String) => StringOps.interleave(s1, s2),
+      ),
       Instance[List[String]](
         binaryOp = (l1: List[String], l2: List[String]) => l1 ++ l2,
         identity = List.empty,
@@ -75,9 +79,17 @@ object Presentation extends LawsPlayground {
     )
 
   override def typeClasses: List[TypeClass] = {
+    val magma = TypeClass(
+      name = "Magma",
+      parents = Set.empty,
+      laws = Set(
+        Laws.binaryOperation,
+      )
+    )
+
     val semigroup = TypeClass(
       name = "Semigroup",
-      parents = Set.empty,
+      parents = Set(magma),
       laws = Set(
         Laws.associativity,
       ),
@@ -154,6 +166,7 @@ object Presentation extends LawsPlayground {
     )
 
     List(
+      magma,
       semigroup,
       monoid,
       band,
