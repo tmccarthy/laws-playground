@@ -46,6 +46,7 @@ lazy val examples = project
     libraryDependencies += "au.id.tmm.tmm-scala-collections" %% "tmm-scala-collections-cats" % tmmCollectionsVersion,
     libraryDependencies += "au.id.tmm.tmm-utils"             %% "tmm-utils-cats"             % tmmUtilsVersion,
     libraryDependencies += "org.slf4j"                        % "slf4j-simple"               % slf4jVersion,
+    libraryDependencies += "org.typelevel"                   %% "spire-laws"                 % "0.17.0-M1",
   )
   .dependsOn(core)
 

@@ -3,6 +3,8 @@ package au.id.tmm.lawsplayground.semigroups.presentation
 import au.id.tmm.lawsplayground.semigroups.{Instance, LawsPlayground, TypeClass}
 import cats.data.NonEmptyList
 import cats.laws.discipline.arbitrary._
+import spire.math.Rational
+import spire.laws.arb._
 
 object Presentation extends LawsPlayground {
   override def instances: List[Instance[_]] =
@@ -14,6 +16,34 @@ object Presentation extends LawsPlayground {
         inverse = (i: Int) => -i,
         multiplicativeOp = (i1: Int, i2: Int) => i1 * i2,
         multiplicativeIdentity = 1,
+        multiplicativeInverse = (i: Int) => i match {
+          case 0 => None
+          case i => Some(1 / i)
+        }
+      ),
+      Instance[Double](
+        name = "Double under addition",
+        binaryOp = (d1: Double, d2: Double) => d1 + d2,
+        identity = 0d,
+        inverse = (d: Double) => -d,
+        multiplicativeOp = (d1: Double, d2: Double) => d1 * d2,
+        multiplicativeIdentity = 1d,
+        multiplicativeInverse = (d: Double) => d match {
+          case 0 => None
+          case d => Some(1 / d)
+        }
+      ),
+      Instance[Rational](
+        name = "Rational under addition",
+        binaryOp = (r1: Rational, r2: Rational) => r1 + r2,
+        identity = 0d,
+        inverse = (r: Rational) => r * -1,
+        multiplicativeOp = (r1: Rational, r2: Rational) => r1 * r2,
+        multiplicativeIdentity = 1d,
+        multiplicativeInverse = (r: Rational) => r match {
+          case Rational.zero => None
+          case r => Some(r.inverse)
+        }
       ),
       Instance[Int](
         name = "Int under maximum",
