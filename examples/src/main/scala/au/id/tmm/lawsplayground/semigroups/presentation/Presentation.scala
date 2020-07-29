@@ -21,17 +21,10 @@ object Presentation extends LawsPlayground {
           case i => Some(1 / i)
         }
       ),
-      Instance[Double](
-        name = "Double under addition",
-        binaryOp = (d1: Double, d2: Double) => d1 + d2,
-        identity = 0d,
-        inverse = (d: Double) => -d,
-        multiplicativeOp = (d1: Double, d2: Double) => d1 * d2,
-        multiplicativeIdentity = 1d,
-        multiplicativeInverse = (d: Double) => d match {
-          case 0 => None
-          case d => Some(1 / d)
-        }
+      Instance[Int](
+        name = "Int under maximum",
+        binaryOp = (i1: Int, i2: Int) => i1 max i2,
+        identity = Int.MinValue,
       ),
       Instance[Rational](
         name = "Rational under addition",
@@ -44,11 +37,6 @@ object Presentation extends LawsPlayground {
           case Rational.zero => None
           case r => Some(r.inverse)
         }
-      ),
-      Instance[Int](
-        name = "Int under maximum",
-        binaryOp = (i1: Int, i2: Int) => i1 max i2,
-        identity = Int.MinValue,
       ),
       Instance[String](
         binaryOp = (s1: String, s2: String) => s1 + s2,
