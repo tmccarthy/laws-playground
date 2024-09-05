@@ -1,4 +1,3 @@
-
 name := "probability"
 
 ThisBuild / tlBaseVersion := "0.1"
@@ -42,11 +41,11 @@ lazy val root = tlCrossRootProject
     examples,
   )
 
-val catsVersion             = "2.10.0"
-val tmmCollectionsVersion   = "0.2.0"
-val tmmUtilsVersion         = "0.10.0"
-val circeVersion            = "0.14.3"
-val slf4jVersion            = "1.7.30"
+val catsVersion           = "2.10.0"
+val tmmCollectionsVersion = "0.2.0"
+val tmmUtilsVersion       = "0.10.0"
+val circeVersion          = "0.14.3"
+val slf4jVersion          = "1.7.30"
 
 lazy val core = project
   .in(file("core"))
