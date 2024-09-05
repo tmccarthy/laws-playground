@@ -54,7 +54,7 @@ object Laws {
   val multiplicativeInverse: Law = new Law.With1Param(name = "multiplicative inverse") {
     override def test[A: Instance](a: A): IsEq[A] =
       a.`⁻¹` match {
-        case Some(inverse) => if (a === zero) fail else (a * inverse) alwaysEquals one
+        case Some(theInverse) => if (a === zero) fail else (a * theInverse) alwaysEquals one
         case None => if (a === zero) pass else fail
       }
   }

@@ -1,6 +1,6 @@
-addSbtPlugin("org.xerial.sbt"    % "sbt-sonatype"      % "2.4")
-addSbtPlugin("com.jsuereth"      % "sbt-pgp"           % "1.1.2")
-addSbtPlugin("de.heikoseeberger" % "sbt-header"        % "5.2.0")
-addSbtPlugin("org.scalameta"     % "sbt-scalafmt"      % "2.4.0")
-addSbtPlugin("ch.epfl.scala"     % "sbt-release-early" % "2.1.1")
-// TODO add scoverage
+val sbtTypelevelVersion = "0.7.1"
+
+addSbtPlugin("org.typelevel"  % "sbt-typelevel" % sbtTypelevelVersion)
+addSbtPlugin("org.xerial.sbt" % "sbt-sonatype"  % "3.10.0")
+
+addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.4.6")

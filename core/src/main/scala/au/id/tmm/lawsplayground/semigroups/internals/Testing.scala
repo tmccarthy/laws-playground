@@ -1,6 +1,6 @@
 package au.id.tmm.lawsplayground.semigroups.internals
 
-import au.id.tmm.lawsplayground.semigroups.internals.Testing._
+import au.id.tmm.lawsplayground.semigroups.internals.Testing.*
 import au.id.tmm.lawsplayground.semigroups.{Instance, Law, LawTestResult, TypeClass}
 import au.id.tmm.utilities.syntax.tuples.->
 import cats.kernel.Eq
@@ -9,9 +9,8 @@ import org.scalacheck.{Arbitrary, Gen, Prop}
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.collection.parallel.immutable.ParSet
-import scala.concurrent.ExecutionContext
 
-class Testing private (implicit ec: ExecutionContext) {
+class Testing private {
 
   private val runSize = 500
 
@@ -51,7 +50,7 @@ class Testing private (implicit ec: ExecutionContext) {
     doTests[Nothing](law, instance.asInstanceOf[Instance[Nothing]])
 
   private def doTests[A](law: Law, instance: Instance[A]): LawTestResult = {
-    import org.scalacheck.Prop._
+    import org.scalacheck.Prop.*
 
     implicit val implicitInstance: Instance[A] = instance
     implicit val implicitArb: Arbitrary[A]     = instance.arbA
@@ -87,7 +86,7 @@ class Testing private (implicit ec: ExecutionContext) {
 }
 
 object Testing {
-  def apply()(implicit ec: ExecutionContext): Testing = new Testing
+  def apply(): Testing = new Testing
 
   final case class Result(
     typeClasses: Set[TypeClass],
