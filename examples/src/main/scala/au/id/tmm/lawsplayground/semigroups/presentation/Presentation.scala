@@ -1,10 +1,13 @@
 package au.id.tmm.lawsplayground.semigroups.presentation
 
+import java.time.LocalDate
+
 import au.id.tmm.lawsplayground.semigroups.{Instance, LawsPlayground, TypeClass}
 import cats.data.NonEmptyList
-import cats.laws.discipline.arbitrary._
+import cats.laws.discipline.arbitrary.*
+import org.typelevel.cats.time.*
+import spire.laws.arb.*
 import spire.math.Rational
-import spire.laws.arb._
 
 object Presentation extends LawsPlayground {
   override def instances: List[Instance[_]] =
@@ -36,7 +39,19 @@ object Presentation extends LawsPlayground {
         multiplicativeInverse = (r: Rational) => r match {
           case Rational.zero => None
           case r => Some(r.inverse)
-        }
+        },
+      ),
+      Instance[Double](
+        name = "Double under addition",
+        binaryOp = (d1: Double, d2: Double) => d1 + d2,
+        identity = 0d,
+        inverse = (d: Double) => d * -1,
+        multiplicativeOp = (d1: Double, d2: Double) => d1 * d2,
+        multiplicativeIdentity = 1d,
+        multiplicativeInverse = (d: Double) => d match {
+          case 0d => None
+          case d => Some(1d / d)
+        },
       ),
       Instance[String](
         binaryOp = (s1: String, s2: String) => s1 + s2,
@@ -63,6 +78,19 @@ object Presentation extends LawsPlayground {
         inverse = (m: SquareMatrix) => m * -1,
         multiplicativeOp = (m1: SquareMatrix, m2: SquareMatrix) => m1 * m2,
         multiplicativeIdentity = SquareMatrix.I,
+      ),
+      Instance[LocalDate](
+        name = "Date under min",
+        binaryOp = (left: LocalDate, right: LocalDate) => Ordering[LocalDate].min(left, right),
+        identity = LocalDate.MAX,
+      ),
+      Instance[BigDecimal](
+        name = "Bigdecimal under addition",
+        binaryOp = (left: BigDecimal, right: BigDecimal) => left + right,
+        identity = BigDecimal.decimal(0),
+        inverse = (d: BigDecimal) => d * -1,
+        multiplicativeOp = (left: BigDecimal, right: BigDecimal) => left * right,
+        multiplicativeIdentity = BigDecimal.decimal(1),
       ),
     )
 
